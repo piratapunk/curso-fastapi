@@ -1,30 +1,23 @@
-from zoneinfo import ZoneInfo
-from datetime import datetime
 from fastapi import FastAPI
 
+from models import CustomerCreate, Customer, Transaction, Invoice
 
 app = FastAPI()
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hola Lee!"}
+current_id: int = 0
 
 
-country_timezones = {
-    "CO": "America/Bogota",
-    "MX": "America/Mexico_City",
-    "AR": "America/Argentina/Buenos_Aires",
-    "BR": "America/Sao_Paulo",
-    "PE": "America/Lima",
-}
+@app.post("/customers", response_model=Customer)
+async def create_customer(customer_data: CustomerCreate):
+    Customer.model_validate(customer_data.model_dump())
+    return customer_data
 
 
-@app.get("/time/{iso_code}/{fmt_str}")
-async def time(iso_code: str, fmt_str: str = "12H"):
-    fmt = "%H:%M" if fmt_str == "24H" else "%I:%M %p"
-    iso = iso_code.upper()
-    tz_str = country_timezones.get(iso)
-    tz = ZoneInfo(tz_str)
-    time = datetime.now(tz).strftime(fmt)
-    return {"time": time}
+@app.post("/transactions")
+async def create_transactions(transactions_data: Transaction):
+    return transactions_data
+
+
+@app.post("/invoices")
+async def create_invoices(invoices_data: Invoice):
+    return invoices_data
